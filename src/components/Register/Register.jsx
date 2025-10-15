@@ -1,7 +1,11 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { auth } from "../../firebase/firebase.init";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router";
 
 const Register = () => {
   const [success, setSuccess] = useState(false);
@@ -12,9 +16,16 @@ const Register = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    console.log("register clicked", email, password);
+    const terms = e.target.terms.checked;
+    console.log("register clicked", email, password, terms);
     setError("");
     setSuccess(false);
+
+
+    if(!terms){
+      setError('Please accept our terms and conditions');
+      return;
+    }
 
     // const passwordPattern = /^.{6,}$/;
     // const passwordCasePattern = /^(?=.*[a-z])(?=.*[A-Z]).+$/;
@@ -45,6 +56,11 @@ const Register = () => {
         console.log("After creation of a new user", result.user);
         setSuccess(true);
         e.target.reset();
+        // send verification email
+
+        sendEmailVerification(result.user).then(() => {
+          alert("Please login to your email and verify your email address");
+        });
       })
       .catch((error) => {
         console.log("Error happened", error.message);
@@ -91,7 +107,7 @@ const Register = () => {
                 </div>
                 <div>
                   <label class="label">
-                    <input type="checkbox" class="checkbox" />
+                    <input type="checkbox" name="terms" class="checkbox" />
                     Accept Our Terms and Conditions.
                   </label>
                 </div>
@@ -106,6 +122,7 @@ const Register = () => {
               )}
               {error && <p className="text-red-500">{error}</p>}
             </form>
+            <p>Already have an account? Please <Link className="text-blue-400 underline" to='/login'>Login</Link></p>
           </div>
         </div>
       </div>
