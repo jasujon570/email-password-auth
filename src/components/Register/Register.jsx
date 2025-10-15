@@ -1,10 +1,13 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/firebase.init";
 import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleRegister = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
@@ -12,8 +15,6 @@ const Register = () => {
     console.log("register clicked", email, password);
     setError("");
     setSuccess(false);
-
-
 
     // const passwordPattern = /^.{6,}$/;
     // const passwordCasePattern = /^(?=.*[a-z])(?=.*[A-Z]).+$/;
@@ -30,12 +31,15 @@ const Register = () => {
     //   return;
     // }
 
-
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
-    if(!passwordPattern.test(password)){
-      setError('Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one special character.');
+    const passwordPattern =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
+    if (!passwordPattern.test(password)) {
+      setError(
+        "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one special character."
+      );
       return;
     }
+
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         console.log("After creation of a new user", result.user);
@@ -47,6 +51,12 @@ const Register = () => {
         setError(error.message);
       });
   };
+
+  const handleTogglePasswordShow = (event) => {
+    event.preventDefault();
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="hero bg-base-200 min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse">
@@ -65,18 +75,35 @@ const Register = () => {
                   name="email"
                 />
                 <label className="label">Password</label>
-                <input
-                  type="password"
-                  className="input"
-                  placeholder="Password"
-                  name="password"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="input"
+                    placeholder="Password"
+                    name="password"
+                  />
+                  <button
+                    onClick={handleTogglePasswordShow}
+                    className="btn btn-xs absolute top-2 right-2"
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                <div>
+                  <label class="label">
+                    <input type="checkbox" class="checkbox" />
+                    Accept Our Terms and Conditions.
+                  </label>
+                </div>
+
                 <div>
                   <a className="link link-hover">Forgot password?</a>
                 </div>
                 <button className="btn btn-neutral mt-4">Register</button>
               </fieldset>
-              {success && <p className="text-green-500">Account created successfully</p>}
+              {success && (
+                <p className="text-green-500">Account created successfully</p>
+              )}
               {error && <p className="text-red-500">{error}</p>}
             </form>
           </div>
